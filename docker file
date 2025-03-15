@@ -1,0 +1,22 @@
+FROM python:3.9
+
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Create the .usr directory in the home directory
+RUN mkdir -p /root/.usr
+
+# Download the rembg models and save them in the .usr directory
+RUN wget https://github.com/danielgatis/rembg/releases/download/v0.0.0/rembg.zip -O /root/.u2net/rembg.zip && \
+    unzip /root/.u2net/rembg.zip -d /root/.u2net && \
+    rm /root/.u2net/rembg.zip
+
+COPY . .
+
+# Expose the port if needed
+# EXPOSE 8080
+
+# Set the entry point for the function
+CMD ["gunicorn", "--bind", "0.0.0.0:8080", "main:app"] # Replace main:app if your entry point is different
