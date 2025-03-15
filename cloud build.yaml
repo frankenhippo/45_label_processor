@@ -1,0 +1,29 @@
+steps:
+# Build the Docker image
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/image-processor', '.']
+
+# Push the Docker image to Google Container Registry
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['push', 'gcr.io/$PROJECT_ID/image-processor']
+
+# Deploy the Cloud Function
+- name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+  entrypoint: gcloud
+  args:
+  - functions
+  - deploy
+  - process_image_upload
+  - --runtime
+  - python39
+  - --trigger-event
+  - google.storage.object.finalize
+  - --trigger-resource
+  - $BUCKET_NAME # Replace with your bucket name
+  - --entry-point
+  - process_image_upload
+  - --source
+  - .
+  - --region
+  - $REGION  # Replace with your desired region
+
